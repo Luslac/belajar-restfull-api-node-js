@@ -1,0 +1,21 @@
+# Dependency (Berat banget, jangan diupload)
+node_modules/
+
+# Build result (kalau ada)
+dist/
+build/
+
+# Jest Coverage (Hasil report test)
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Junk
+.DS_Store
+Thumbs.db
+
+# Keep environment variables out of version control
+.env
