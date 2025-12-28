@@ -10,7 +10,19 @@ const loginUserValidation = z.object({
     password: z.string().min(8).max(100),
 })
 
+const getUserValidation = z.object({
+    username: z.string().min(3).max(100)
+})
+
+const updateUserValidation = z.object({
+    username: z.string().min(3).max(100),
+    password: z.string().min(8).max(100).optional(),
+    name: z.string().min(3).max(100).optional(),
+})
+
 export {
     register_UserValidation,
-    loginUserValidation
+    loginUserValidation,
+    getUserValidation,
+    updateUserValidation
 }

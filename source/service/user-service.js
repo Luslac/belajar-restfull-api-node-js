@@ -1,9 +1,11 @@
 import { validate } from "../validation/validation.js";
-import { loginUserValidation, register_UserValidation } from "../validation/user_validation.js";
+import { getUserValidation, loginUserValidation, register_UserValidation, updateUserValidation } 
+from "../validation/user_validation.js";
 import { prisma } from "../application/database.js";
 import { ResponseError } from "../error/response-error.js";
 import bcrypt from "bcrypt"
 import {v4 as uuid} from "uuid"
+import { logger } from "../application/logging.js";
 
 // Untuk Registrasi User
 const registration = async (request) => {
@@ -73,7 +75,88 @@ const login = async (request) => {
     })
 }
 
+const getUser = async (requestUserName) => {
+    const resultUser = validate(getUserValidation, {username: requestUserName})
+    
+    const user = await prisma.user.findFirst({
+        where: {
+            username: resultUser.username
+        },
+        select: {
+            username: true,
+            name: true
+        }
+    })
+
+    if (!user) {
+        throw new ResponseError(404, "Username NOT Found")
+    }
+
+    return user
+}
+
+const updateUser = async (updateRequest) =>  {
+    const resultUser = validate(updateUserValidation, updateRequest)
+
+    const countUser = await prisma.user.count({
+        where: {
+            username: resultUser.username
+        }
+    })
+
+    if (countUser !== 1) {
+        throw new ResponseError(404, "USER NOT FOUND")
+    }
+    const data = {}
+    if (resultUser.name) {
+        data.name = resultUser.name
+    }
+    if (resultUser.password) {
+        data.password = await bcrypt.hash(resultUser.password, 10)
+    }
+
+    return prisma.user.update({
+        where: {
+            username: resultUser.username
+        },
+        data: data,
+        select: {
+            username: true,
+            name: true
+        }
+    })
+}
+
+const logoutUser = async (usernameToLogOut) => {
+    const usernameValidate = validate(getUserValidation, {username: usernameToLogOut})
+
+    const user = await prisma.user.findFirst({
+        where: {
+            username: usernameValidate.username
+        }
+    })
+    if (!user) {
+        throw new ResponseError(404, "Username Not Found")
+    }
+
+    return prisma.user.update({
+        where: {
+            username: user.username
+        },
+        data: {
+            token: null
+        },
+        select: {
+            username: true,
+            name: true
+        }
+    })
+
+}
 export default {
     registration,
-    login
+    login,
+    getUser,
+    updateUser,
+    logoutUser
 }

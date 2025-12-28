@@ -20,7 +20,51 @@ const login = async (req, res, next) => {
         next(e)
     }
 }
+
+const get = async (req, res, next) => {
+    try {
+        const requestUserName = req.user.username
+        const result = await userService.getUser(requestUserName)
+        res.status(200).json({
+            data: result
+        })
+    } catch (e) {
+        next(e)
+    }
+}
+
+const update = async (req, res, next) => {
+    try {
+        const username = req.user.username
+        const request = req.body
+        request.username = username
+
+        const result = await userService.updateUser(request)
+        res.status(200).json({
+            data: result
+        })
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+const logOut = async (req, res, next) => {
+    try {
+        const username = req.user.username
+        const result = await userService.logoutUser(username)
+        res.status(200).json({
+            data: 'OK',
+            details: result
+        })
+    } catch (error) {
+        next(error)
+    }
+}
 export default {
     register,
-    login
+    login,
+    get,
+    update,
+    logOut
 }

@@ -119,7 +119,11 @@ Authorization : TOKEN
 Response Body Success :
 ```json
 {
-  "data" : "OK"
+  "data" : "OK",
+  "details": {
+    "username"
+    "name"
+  }
 }
 ```
 Response Body Error :
