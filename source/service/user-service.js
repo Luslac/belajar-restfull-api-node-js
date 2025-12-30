@@ -6,7 +6,7 @@ import { ResponseError } from "../error/response-error.js";
 import bcrypt from "bcrypt"
 import {v4 as uuid} from "uuid"
 import { logger } from "../application/logging.js";
-
+import jwt from "jsonwebtoken";
 // Untuk Registrasi User
 const registration = async (request) => {
     const user_current = validate(register_UserValidation, request)
@@ -16,8 +16,6 @@ const registration = async (request) => {
             username: user_current.username
         }
     })
-
-    console.log("LOG DEBUG SERVICE: HOW MANY USER? -> ", is_user_exists_count);
 
     if (is_user_exists_count >= 1) {
         throw new ResponseError(400, "User already exists")
@@ -60,19 +58,18 @@ const login = async (request) => {
         throw new ResponseError(401, "Username Or Password Wrong!!")
     }
 
-    const token = uuid().toString()
-    return prisma.user.update({
-        data: {
-            token: token
-        },
-        where: {
-            username: user.username
-        },
-        select: {
-            token: true,
-            username: true
-        }
-    })
+    const token = jwt.sign(
+            { 
+                username: user.username,  
+                role: "user"              
+            }, 
+            process.env.JWT_SECRET,       
+            { expiresIn: process.env.JWT_EXPIRES_IN } 
+        )
+    return {
+        token: token,
+        username: user.username
+    }
 }
 
 const getUser = async (requestUserName) => {
@@ -133,25 +130,17 @@ const logoutUser = async (usernameToLogOut) => {
     const user = await prisma.user.findFirst({
         where: {
             username: usernameValidate.username
-        }
-    })
-    if (!user) {
-        throw new ResponseError(404, "Username Not Found")
-    }
-
-    return prisma.user.update({
-        where: {
-            username: user.username
-        },
-        data: {
-            token: null
         },
         select: {
             username: true,
             name: true
         }
     })
+    if (!user) {
+        throw new ResponseError(404, "Username Not Found")
+    }
 
+    return user
 }
 export default {
     registration,

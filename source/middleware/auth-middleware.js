@@ -1,4 +1,5 @@
 import { prisma } from "../application/database.js"
+import jwt from "jsonwebtoken";
 
 export const authMiddleware = async (req, res, next) => {
     const token = req.get("Authorization")
@@ -6,20 +7,23 @@ export const authMiddleware = async (req, res, next) => {
         res.status(401).json({
             errors: "Unauthorized"
         }).end()
-    } else {
-        const user = await prisma.user.findFirst({
+    } 
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await prisma.user.findUnique({
             where: {
-                token: token
+                username: decoded.username
             }
         });
+
         if (!user) {
-            res.status(401).json({
-            errors: "Unauthorized"
-        }).end()
-        } else {
-            req.user = user
-            next()
+            res.status(401).json({ errors: "Unauthorized" }).end();
+            return;
         }
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(401).json({ errors: "Unauthorized" }).end();
     }
 }
 
