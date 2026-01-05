@@ -71,6 +71,26 @@ const login = async (request) => {
         username: user.username
     }
 }
+// Untuk Login atau register menggunakan google
+const loginOrRegisterGoogleService = async (googleProfile) => {
+    const existingUser = await prisma.user.findFirst({
+        where: { email: googleProfile.email }
+    })
+
+    if (existingUser) {
+        return existingUser
+    }
+    const newUser = await prisma.user.create({
+        data: {
+            username: "google_" + googleProfile.displayName,
+            email: googleProfile.email,
+            name: googleProfile.displayName,
+            googleId: googleProfile.id,
+            password: null
+    }
+    });
+    return newUser
+}
 
 const getUser = async (requestUserName) => {
     const resultUser = validate(getUserValidation, {username: requestUserName})
@@ -147,5 +167,6 @@ export default {
     login,
     getUser,
     updateUser,
-    logoutUser
+    logoutUser,
+    loginOrRegisterGoogleService
 }

@@ -1,5 +1,5 @@
 import userService from "../service/user-service.js";
-
+import jwt from "jsonwebtoken"
 const register = async (req, res, next) => {
     try {
         const result = await userService.registration(req.body)
@@ -18,6 +18,21 @@ const login = async (req, res, next) => {
         })
     } catch (e) {
         next(e)
+    }
+}
+
+const loginGoogle = async (req, res, next) => {
+    try {
+        const user = req.user
+        const token = jwt.sign(
+            { email: user.email, username: user.username }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: process.env.JWT_EXPIRES_IN }
+        )
+        
+        res.redirect(`http://localhost:3000/api/users/current?token=${token}`)
+    } catch (error) {
+        next(error)
     }
 }
 
@@ -66,5 +81,6 @@ export default {
     login,
     get,
     update,
-    logOut
+    logOut,
+    loginGoogle
 }
