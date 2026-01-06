@@ -3,6 +3,7 @@ import contactController from "../controller/contact-controller.js"
 import userController from "../controller/user-controller.js"
 import addressController from "../controller/address-controller.js"
 import { authMiddleware } from "../middleware/auth-middleware.js"
+import { uploadAvatar } from "../middleware/avatar-upload-middleware.js"
 
 const userRouter = new express.Router()
 userRouter.use(authMiddleware)
@@ -29,7 +30,7 @@ userRouter.delete("/api/contacts/:contactId/addresses/:addressId", addressContro
 userRouter.get("/api/contacts/:contactId/addresses", addressController.list)
 
 // Upload API
-
+userRouter.patch("/api/users/current/avatar", uploadAvatar.single("avatar"), userController.uploadAvatar)
 
 export {
     userRouter

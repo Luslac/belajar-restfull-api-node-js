@@ -1,3 +1,4 @@
+import { ResponseError } from "../error/response-error.js";
 import userService from "../service/user-service.js";
 import jwt from "jsonwebtoken"
 const register = async (req, res, next) => {
@@ -64,6 +65,19 @@ const update = async (req, res, next) => {
     }
 }
 
+const uploadAvatar = async (req, res, next) => {
+    try {
+        const result = await userService.uploadAvatarUser(req.user, req.file)
+
+        res.status(200).json({
+                data: result 
+            })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 const logOut = async (req, res, next) => {
     try {
         const username = req.user.username
@@ -82,5 +96,6 @@ export default {
     get,
     update,
     logOut,
-    loginGoogle
+    loginGoogle,
+    uploadAvatar
 }

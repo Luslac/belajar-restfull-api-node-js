@@ -2,12 +2,10 @@ import { prisma } from "../application/database.js"
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = async (req, res, next) => {
-    const token = req.query.token || req.get("Authorization")
-    console.log("TOKEN = " + token)
+    let token = req.query.token || req.get("Authorization")
     if (token && token.startsWith("Bearer ")) {
         token = token.split(" ")[1];
     }
-    console.log("TOKEN = " + token)
     if (!token) {
         res.status(401).json({
             errors: "Unauthorized"

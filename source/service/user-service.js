@@ -144,6 +144,26 @@ const updateUser = async (updateRequest) =>  {
     })
 }
 
+const uploadAvatarUser = async (user, file) => {
+    if (!file) {
+        throw new ResponseError("File dont exist, upload image!")
+    }
+
+    const avatarPath = `/images/${file.filename}`
+
+    const updateAvatar = await prisma.user.update({
+        where: { username: user.username },
+        data: { avatar: avatarPath }
+    })
+
+    return {
+        username: updateAvatar.username,
+        avatar: updateAvatar.avatar,
+        message: "Avatar upload successful!"
+    }
+}
+
+
 const logoutUser = async (usernameToLogOut) => {
     const usernameValidate = validate(getUserValidation, {username: usernameToLogOut})
 
@@ -168,5 +188,6 @@ export default {
     getUser,
     updateUser,
     logoutUser,
-    loginOrRegisterGoogleService
+    loginOrRegisterGoogleService,
+    uploadAvatarUser
 }

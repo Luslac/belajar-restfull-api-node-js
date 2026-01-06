@@ -17,6 +17,7 @@ web.use(session({
 web.use(passport.initialize())
 //web.use(passport.session())
 web.use(express.json())
+web.use("/images", express.static("public/images"));
 web.use(publicRouter)
 web.use(userRouter)
 web.use(errorMiddleWare)
