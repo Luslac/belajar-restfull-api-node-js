@@ -56,6 +56,72 @@ Response Body Error :
   "errors" : "Username or password wrong",
 }
 ```
+
+## Login User With Google API
+Autentikasi menggunakan Google OAuth 2.0. Flow terdiri dari 3 tahap:
+1. Initiate login → redirect ke Google.
+2. Google callback → dapat JWT token.
+3. Get user data menggunakan token.
+
+
+A. Initiate Google Login
+
+
+Endpoint: GET /api/users/auth/google
+
+Request Body: None (Kosong)
+
+Response:
+
+- Status Code: 302 Found (Redirect)
+
+- Action: Browser akan diarahkan otomatis ke accounts.google.com.
+
+B. Google Callback (System Only)
+
+Endpoint: GET /api/users/auth/google/callback
+
+Response:
+
+- Status Code: 302 Found (Redirect)
+
+- Redirect Target: http://localhost:5000/api/users/current?token={JWT_TOKEN} 
+- Ambil Token dari query 'token'
+
+
+C. Get Current User 
+
+Endpoint: GET /api/users/current
+
+Header:
+
+Authorization:
+Bearer <token_dari_step_sebelumnya>
+
+Response Body (JSON):
+```json
+{
+  "data": {
+    "username": "google_budi123",
+    "name": "Budi Santoso"
+  }
+}
+```
+Error Responses:
+
+401 Unauthorized (No token):
+```json
+{
+  "errors": "Unauthorized"
+}
+```
+
+401 Unauthorized (Invalid/expired token):
+```json
+{
+  "errors": "Unauthorized"
+}
+```
 ## Update User API
 
 Endpoint : PATCH /api/users/current

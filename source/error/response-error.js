@@ -4,6 +4,7 @@ class ResponseError extends Error{
         super(message)
         this.status = status
     }
+    
 }
 
 export {

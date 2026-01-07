@@ -11,6 +11,7 @@ const register = async (req, res, next) => {
         next(e)
     }
 }
+
 const login = async (req, res, next) => {
     try {
         const result = await userService.login(req.body)
@@ -30,8 +31,7 @@ const loginGoogle = async (req, res, next) => {
             process.env.JWT_SECRET, 
             { expiresIn: process.env.JWT_EXPIRES_IN }
         )
-        
-        res.redirect(`http://localhost:3000/api/users/current?token=${token}`)
+        res.redirect(`http://localhost:5000/api/users/current?token=${token}`)
     } catch (error) {
         next(error)
     }

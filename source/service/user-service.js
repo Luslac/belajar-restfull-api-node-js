@@ -4,9 +4,9 @@ from "../validation/user_validation.js";
 import { prisma } from "../application/database.js";
 import { ResponseError } from "../error/response-error.js";
 import bcrypt from "bcrypt"
-import {v4 as uuid} from "uuid"
-import { logger } from "../application/logging.js";
 import jwt from "jsonwebtoken";
+
+
 // Untuk Registrasi User
 const registration = async (request) => {
     const user_current = validate(register_UserValidation, request)
@@ -71,19 +71,26 @@ const login = async (request) => {
         username: user.username
     }
 }
+
 // Untuk Login atau register menggunakan google
 const loginOrRegisterGoogleService = async (googleProfile) => {
+    const email = googleProfile.emails && googleProfile.emails[0] ? googleProfile.emails[0].value : null
+
+    if (!email) throw new Error("Email Google tidak ditemukan!")
+
     const existingUser = await prisma.user.findFirst({
-        where: { email: googleProfile.email }
+        where: { email: email }
     })
 
     if (existingUser) {
         return existingUser
     }
+    const cleanName = googleProfile.displayName.replace(/\s+/g, '')
+    const uniqueSuffix = Date.now()
     const newUser = await prisma.user.create({
         data: {
-            username: "google_" + googleProfile.displayName,
-            email: googleProfile.email,
+            username: `google_${cleanName}${uniqueSuffix}` ,
+            email: email,
             name: googleProfile.displayName,
             googleId: googleProfile.id,
             password: null
@@ -182,6 +189,9 @@ const logoutUser = async (usernameToLogOut) => {
 
     return user
 }
+
+
+
 export default {
     registration,
     login,
